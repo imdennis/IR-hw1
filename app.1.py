@@ -51,44 +51,25 @@ for query in querys:
     query_series.append(x)
 
 
-history_tf_idf = {}
-history_idf ={}
 # tf-idf
-
-
-def tf_idf(index, word, series):
-    series_no = 0
-    if series == doc_series:
-        series_no = 1
-    else:
-        series_no = 2
-    if '%d%s%d' % (index, word, series_no) in history_tf_idf:
-        return history_tf_idf['%d%s%d' % (index, word, series_no)]
-
+def tf_idf(index=0, word='3310', series=doc_series):
 
     # tf
     tf = series[index].get_value(word)
     tf = 1 + math.log2(tf)
 
     # idf
-    if '%d%s' % (series_no, word) not in history_idf:
-        idf = 0
-        for s in series:
-            if word in s.index:
-                idf += 1
-        history_idf['%d%s' % (series_no, word)] =idf
-    else:
-        idf = history_idf['%d%s' % (series_no, word)]
+    idf = 0
+    for s in series:
+        if word in s.index:
+            idf += 1
 
     if series == doc_series:
         idf = math.log10(2265/(idf+0.5))
     else:
         idf = math.log10(16/(idf+0.5))
 
-    result = tf*idf
-
-    history_tf_idf['%d%s%d' % (index, word, series_no)] = result
-    return result
+    return tf*idf
 
 
 # print submission title
@@ -97,42 +78,35 @@ with open('submission.txt', 'w') as t:
 
 
 for query_i in range(16):
-    print("in query %d" % query_i)
-
-    # dist of query
-    print('compute dist qyery')
-    dist_query = 0
-    for word in query_series[query_i]:
-        dist_query += math.pow(tf_idf(query_i, word, query_series), 2)
-
 
     sim_array = {}
     for doc_j in range(2265):
-        print("in doc %d" % doc_j)
 
         dot = 0
-        print('compute dot')
         for word in query_series[query_i]:
             dot += tf_idf(query_i, word, query_series) * \
                 tf_idf(doc_j, word, doc_series)
 
+        # dist of query
+        dist_query = 0
+        for word in query_series[query_i]:
+            dist_query += math.pow(tf_idf(query_i, word, query_series), 2)
+
         # dist of doc
-        print('compute dist doc')
         dist_doc = 0
         for word in doc_series[doc_j]:
             dist_doc += math.pow(tf_idf(doc_j, word, doc_series), 2)
 
         sim = dot / (dist_query * dist_doc)
-        sim_array[docs[doc_j]] = sim
+        sim_array[doc_array[doc_j]] = sim
 
     # sort dict
-    print('compute sorting')
     result_turple = sorted(
         sim_array.items(), key=lambda kv: kv[1], reverse=True)
 
     # print this query result:
     with open('submission.txt', 'a') as t:
-        t.write('%s,' % querys[query_i])
+        t.write('%s,' % query_array[query_i])
 
         for rt in result_turple:
             t.write('%s ' % rt[0])
