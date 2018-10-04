@@ -119,11 +119,13 @@ def tf_idf(index, word, series):
     
 
     #scheme 2
-    if series_no ==1:
-        tf_idf = 1+tf(index, word, series)
-    else:
-        tf_idf = math.log10(1+ 16/idf(word))
+    # if series_no ==1:
+    #     tf_idf = 1+tf(index, word, series)
+    # else:
+    #     tf_idf = math.log10(1+ 16/idf(word))
 
+    #scheme 3
+    tf_idf = (1+ tf(index, word, series)) * idf(word)
 
 
     #save 
