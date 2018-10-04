@@ -96,9 +96,9 @@ def tf(index, word, series):
         tf = 1+ math.log2(f)
 
     #query tf tuning
-    if series_no == 2:
-        tf = ( 0.5 + 0.5*(tf/series[index][0]) )
-        print('max tf in this query -> %d' % series[index][0])
+    # if series_no == 2:
+    #     tf = ( 0.5 + 0.5*(tf/series[index][0]) )
+    #     print('max tf in this query -> %d' % series[index][0])
 
     #save
     history_tf['%d%s%d' %(index, word, series_no)] = tf
@@ -114,8 +114,18 @@ def tf_idf(index, word, series):
     if '%d%s%d' %(index, word, series_no) in history_tf:
         return history_tfidf['%d%s%d' %(index, word, series_no)]
     
-    tf_idf = tf(index, word, series) * idf(word)
+    #origin
+    # tf_idf = tf(index, word, series) * idf(word)
     
+
+    #scheme 2
+    if series_no ==1:
+        tf_idf = 1+tf(index, word, series)
+    else:
+        tf_idf = math.log10(1+ 16/idf(word))
+
+
+
     #save 
     history_tfidf['%d%s%d' %(index, word, series_no)] = tf_idf
     
