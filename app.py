@@ -40,7 +40,7 @@ for doc in docs:
 # read all querys
 query_series = []
 
-max_tfq = 0
+# max_tfq = 0
 for query in querys:
 
     query_array = []
@@ -53,10 +53,10 @@ for query in querys:
 
     x = pd.value_counts(query_array)
     
-    #clac max tf in query
-    if x[0] > max_tfq:
-        max_tfq = x[0]
-        # print('update max_tfq -> %d' % max_tfq)
+    # #clac max tf in query
+    # if x[0] > max_tfq:
+    #     max_tfq = x[0]
+    #     # print('update max_tfq -> %d' % max_tfq)
 
     query_series.append(x)
 
@@ -97,7 +97,8 @@ def tf(index, word, series):
 
     #query tf tuning
     if series_no == 2:
-        tf = ( 0.5 + 0.5*(tf/max_tfq) )
+        tf = ( 0.5 + 0.5*(tf/series[index][0]) )
+        print('max tf in this query -> %d' % series[index][0])
 
     #save
     history_tf['%d%s%d' %(index, word, series_no)] = tf
