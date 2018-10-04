@@ -39,8 +39,6 @@ for doc in docs:
 
 # read all querys
 query_series = []
-
-max_tfq = 0
 for query in querys:
 
     query_array = []
@@ -52,73 +50,51 @@ for query in querys:
                     query_array.append(word)
 
     x = pd.value_counts(query_array)
-    
-    #clac max tf in query
-    if x[0] > max_tfq:
-        max_tfq = x[0]
-        # print('update max_tfq -> %d' % max_tfq)
-
     query_series.append(x)
 
 
-
-history_idf = {}
-def idf(word):
-    #find history
-    if word in history_idf:
-        return history_idf[word]
-
-    df = 0
-    for s in doc_series:
-        if word in s.index:
-            df += 1
-    if df == 0:
-        df = 0.5
-    idf = math.log(2265/df)
-
-    #save
-    history_idf[word] = idf
-    return idf
-
-history_tf = {}
-def tf(index, word, series):
-    series_no = 2
-    if series == doc_series:
-        series_no = 1
-
-    #find history
-    if '%d%s%d' %(index, word, series_no) in history_tf:
-        return history_tf['%d%s%d' %(index, word, series_no)]
-
-    tf = 0
-    if word in series[index].index:
-        f = series[index].get_value(word)
-        tf = 1+ math.log2(f)
-
-    #query tf tuning
-    if series_no == 2:
-        tf = ( 0.5 + 0.5*(tf/max_tfq) )
-
-    #save
-    history_tf['%d%s%d' %(index, word, series_no)] = tf
-    return tf
-
-history_tfidf = {}
+history_tf_idf = {}
+history_idf ={}
+# tf-idf
 def tf_idf(index, word, series):
-    series_no = 1
-    if series == query_series:
-        series_no = 2
+    series_no = 2 #query
+    if series == doc_series:
+        series_no = 1 #document
+    
+    if '%d%s%d' % (index, word, series_no) in history_tf_idf:
+        return history_tf_idf['%d%s%d' % (index, word, series_no)]
 
-    #find history
-    if '%d%s%d' %(index, word, series_no) in history_tf:
-        return history_tfidf['%d%s%d' %(index, word, series_no)]
-    
-    tf_idf = tf(index, word, series) * idf(word)
-    
-    #save 
-    history_tfidf['%d%s%d' %(index, word, series_no)] = tf_idf
-    
-    return tf_idf
+
+    #tf
+    tf = 1
+    if word in series[index].index:
+        tf = series[index].get_value(word)
+        tf = 1 + math.log2(tf)
+    else:
+        tf = 1
+    # print('tf: %d,series : %d ,index:%d, word:%s'%(tf,series_no,index,word))
+
+
+    # idf
+    idf = 0
+    if word not in history_idf:
+        for s in doc_series:
+            if word in s.index:
+                idf += 1
+        history_idf[word] =idf
+    else:
+        idf = history_idf[word]
+
+    # print('idf: %d,series : %d ,index:%d, word:%s'%(idf,series_no,index,word))
+
+    idf = math.log10(2265/(idf+1))
+
+    # result = tf*idf
+    result = tf
+
+    history_tf_idf['%d%s%d' % (index, word, series_no)] = result
+    return result
+
 
 # print submission title
 with open('submission.txt', 'w') as t:
@@ -170,4 +146,3 @@ for query_i in range(16):
 
     # print(query_series[0])
     # break
-    
