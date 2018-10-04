@@ -93,7 +93,8 @@ def tf(index, word, series):
     tf = 0
     if word in series[index].index:
         f = series[index].get_value(word)
-        tf = 1+ math.tanh(f)
+        tf = 1+math.log2(f)
+        #try ineerfnc log
 
     #query tf tuning
     # if series_no == 2:
