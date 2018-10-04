@@ -93,7 +93,7 @@ def tf(index, word, series):
     tf = 0
     if word in series[index].index:
         f = series[index].get_value(word)
-        tf = 1+ math.log2(f)
+        tf = 1+ math.tanh(f)
 
     #query tf tuning
     # if series_no == 2:
@@ -115,7 +115,7 @@ def tf_idf(index, word, series):
         return history_tfidf['%d%s%d' %(index, word, series_no)]
     
     #origin
-    # tf_idf = tf(index, word, series) * idf(word)
+    tf_idf = tf(index, word, series) * idf(word)
     
 
     #scheme 2
@@ -125,7 +125,7 @@ def tf_idf(index, word, series):
     #     tf_idf = math.log10(1+ 16/idf(word))
 
     #scheme 3
-    tf_idf = (1+ tf(index, word, series)) * idf(word)
+    # tf_idf = (1+ tf(index, word, series)) * idf(word)
 
 
     #save 
